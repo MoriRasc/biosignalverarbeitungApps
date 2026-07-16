@@ -35,12 +35,12 @@ def get_original_signal(t_min, t_max, f1, n_points=1000):
 t1, xt = get_original_signal(t_min, t_max, f1)
  
 # --- SelectSlider für die Abtastfrequenz ---
-fs_options = [2, 3, 4, 6, 8, 10, 16, 20, 32, 50]
-fs = st.select_slider(
-    "Abtastfrequenz fs (Hz)",
-    options=fs_options,
-    value=8
-)
+fs = st.slider("Abtastfrequenz fs (Hz)", 2.0, 20.0 , 5.0, 0.1)
+#fs = st.select_slider(
+#    "Abtastfrequenz fs (Hz)",
+#    options=fs_options,
+#    value=8
+#)
 Ts = 1 / fs
  
 st.caption(f"Ts = 1/fs = {Ts:.4f} s")
@@ -88,6 +88,7 @@ with col3:
     ax3.set_xlabel('Zeit (s)')
     ax3.set_ylabel('Amplitude (v)')
     ax3.set_title('Signalrekonstruktion')
+    ax3.set_xlim(0, 2)
     ax3.legend()
     st.pyplot(fig3)
  
