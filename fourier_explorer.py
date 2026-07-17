@@ -251,9 +251,18 @@ else:
     # --- interactive spectrum plot: drag across it to set the low/high range ---
     st.subheader("Select a frequency range with two cursors")
     st.caption(
-        "Click and drag horizontally over the plot to select the frequency "
-        "range to keep. The two vertical lines mark the lower and upper "
-        "cutoff frequencies; only frequencies between them are reproduced."
+        "Use the slider below to zoom the x-axis range, then drag horizontally "
+        "on the plot to select the frequency range to keep. Plotly zoom and pan "
+        "are disabled so the selection remains easy to adjust."
+    )
+
+    max_display_freq = min(20000.0, sample_rate / 2)
+    zoom_min, zoom_max = st.slider(
+        "Plot zoom range (Hz)",
+        0.0,
+        float(max_display_freq),
+        value=(0.0, float(max_display_freq)),
+        step=50.0,
     )
 
     low_cutoff = float(st.session_state.low_freq)
@@ -284,8 +293,10 @@ else:
         xaxis_title="Frequency (Hz)", yaxis_title="Magnitude",
         height=350, margin=dict(l=40, r=20, t=20, b=40),
         dragmode="select",
+        xaxis=dict(range=[zoom_min, zoom_max], fixedrange=True),
+        yaxis=dict(fixedrange=True),
+        modebar_remove=["zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d"],
     )
-    spec_fig.update_xaxes(range=[0, sample_rate / 2])
 
     drag_event = st.plotly_chart(
         spec_fig, use_container_width=True, key="spectrum_chart",
