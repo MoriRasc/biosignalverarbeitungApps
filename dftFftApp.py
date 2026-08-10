@@ -241,7 +241,7 @@ elif operation == "Upsampling (Interpolation)":
     with bottom_left:
         fig_filter, ax_filter = plt.subplots(figsize=(6, 2.8))
         ax_filter.plot(t_up, x_up, color="gray", alpha=0.4, label="Upsampled")
-        ax_filter.plot(t_up, x_filtered_gain, color="tab:purple", label="Tiefpass-gefiltert ×10")
+        ax_filter.plot(t_up, x_filtered_gain, color="tab:purple", label=f"Tiefpass-gefiltert ×{factor}")
         ax_filter.set_xlabel("Zeit (s)")
         ax_filter.set_ylabel("Amplitude")
         ax_filter.set_title("Gefiltertes Signal nach Upsampling")
@@ -253,9 +253,9 @@ elif operation == "Upsampling (Interpolation)":
     with bottom_right:
         st.info(
             f"Abtastfrequenz nach Upsampling: {new_fs:.1f} Hz. "
-            "Beachte: Das Spektrum ist hier eine Wiederholung des Originalspektrums, also eine periodische Spiegelung bzw. Wiederholung der Spektrallinien im erwarteten Frequenzbereich. "
-            "Das passiert, weil die DFT einen signifikanten Zeitraum mit den gleichen Originalwerten an gleicher Stelle behandelt, aber durch die höhere Abtastfrequenz nun mehr Nullwerte bzw. zusätzliche Abtaststellen zwischen den Originalproben auftauchen. Dadurch wird das ursprüngliche Bandlimit im Frequenzbereich periodisch in den neuen Nyquist-Bereich abgebildet. "
-            "Ein Tiefpass ist nötig, um die zusätzliche Wiederholung bzw. die künstlich erzeugten Abbildungen wegzufiltern und das ursprüngliche Spektrum wiederherzustellen. "
-            "Die Verstärkung um den Faktor ist nötig, weil der Tiefpass die Amplitude reduziert, sodass das gefilterte Signal sonst kleiner als das Original erscheint."
+            "Beim Upsampling werden zwischen die vorhandenen Originalwerte neue Zeitpunkte eingefügt, die mit 0 belegt sind. Das ist keine neue Information, sondern nur eine feinere Zeitachse mit Leerstellen. "
+            "Diese Leerstellen verändern das Spektrum, weil die Fourier-Transformation nun aus einer Folge besteht, die zwischen den echten Messwerten viele Nullwerte enthält. Dadurch wird das ursprüngliche Spektrum im neuen, größeren Frequenzbereich wiederholt bzw. 'verschachtelt' dargestellt. "
+            "Die Wiederholung entsteht, weil das Spektrum periodisch ist: Eine Kompression der Zeitachse führt zu mehreren Kopien des ursprünglichen Spektrums im neuen Frequenzbereich. "
+            f"Ein Tiefpass ist nötig, um diese Wiederholungen bzw. die zusätzlichen Spektralabbildungen zu entfernen und nur die gewünschten Frequenzanteile im Basisband übrig zu lassen. "
         )
 
