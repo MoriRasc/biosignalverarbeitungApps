@@ -203,18 +203,19 @@ elif operation == "Upsampling (Interpolation)":
     new_fs = fs * factor
     t_up = np.arange(0, duration, 1 / new_fs)
     x_up = np.zeros(len(t_up))
-    x_up[::factor] = x
+    x_up[::factor] = x # Setze die Originalwerte an den entsprechenden Positionen
     freqs_up, mags_up = spectrum(x_up, new_fs)
 
-    st.subheader("3. Upsampling")
+    st.subheader("3. Upsampling (Interpolation)")
     top_left, top_right = st.columns(2)
     with top_left:
         fig_up_time, ax_up_time = plt.subplots(figsize=(6, 2.8))
-        ax_up_time.plot(t, x, color="gray", alpha=0.4, label="Original")
+        ax_up_time.plot(t x, color="gray", alpha=0.4, label="Original")
         ax_up_time.plot(t_up, x_up, "-", color="tab:green", label="Upsampled")
         ax_up_time.set_xlabel("Zeit (s)")
         ax_up_time.set_ylabel("Amplitude")
         ax_up_time.set_title("Signal nach Upsampling")
+        ax_up_time.set_xlim(0, 1)
         ax_up_time.grid(True)
         ax_up_time.legend()
         fig_up_time.tight_layout()
