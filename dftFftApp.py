@@ -215,7 +215,7 @@ elif operation == "Upsampling (Interpolation)":
         ax_up_time.set_xlabel("Zeit (s)")
         ax_up_time.set_ylabel("Amplitude")
         ax_up_time.set_title("Signal nach Upsampling")
-        ax_up_time.set_xlim(0, max(new_fs / 2 + 5, 20))
+        ax_up_time.set_xlim(0, 1)
         ax_up_time.grid(True)
         ax_up_time.legend()
         fig_up_time.tight_layout()
