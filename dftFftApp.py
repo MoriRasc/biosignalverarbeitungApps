@@ -236,7 +236,7 @@ elif operation == "Upsampling (Interpolation)":
 
     cutoff = max(freqs) + 5
     x_filtered = lowpass_filter(x_up, cutoff, new_fs)
-    x_filtered_gain = x_filtered * 10
+    x_filtered_gain = x_filtered * factor
 
     with bottom_left:
         fig_filter, ax_filter = plt.subplots(figsize=(6, 2.8))
@@ -253,7 +253,9 @@ elif operation == "Upsampling (Interpolation)":
     with bottom_right:
         st.info(
             f"Abtastfrequenz nach Upsampling: {new_fs:.1f} Hz. "
-            "Das Upsampling erzeugt zusätzliche Spektralabbildungen. Ein Tiefpass ist nötig, um das ursprüngliche Spektrum zu erhalten. "
-            "Die Verstärkung um den Faktor 10 ist nötig, weil der Tiefpass die Amplitude reduziert, sodass das gefilterte Signal sonst kleiner als das Original erscheint."
+            "Beachte: Das Spektrum ist hier eine Wiederholung des Originalspektrums, also eine periodische Spiegelung bzw. Wiederholung der Spektrallinien im erwarteten Frequenzbereich. "
+            "Das passiert, weil die DFT einen signifikanten Zeitraum mit den gleichen Originalwerten an gleicher Stelle behandelt, aber durch die höhere Abtastfrequenz nun mehr Nullwerte bzw. zusätzliche Abtaststellen zwischen den Originalproben auftauchen. Dadurch wird das ursprüngliche Bandlimit im Frequenzbereich periodisch in den neuen Nyquist-Bereich abgebildet. "
+            "Ein Tiefpass ist nötig, um die zusätzliche Wiederholung bzw. die künstlich erzeugten Abbildungen wegzufiltern und das ursprüngliche Spektrum wiederherzustellen. "
+            "Die Verstärkung um den Faktor ist nötig, weil der Tiefpass die Amplitude reduziert, sodass das gefilterte Signal sonst kleiner als das Original erscheint."
         )
 
