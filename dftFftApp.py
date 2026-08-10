@@ -211,7 +211,7 @@ elif operation == "Upsampling (Interpolation)":
     with top_left:
         fig_up_time, ax_up_time = plt.subplots(figsize=(6, 2.8))
         ax_up_time.plot(t, x, color="gray", alpha=0.4, label="Original")
-        ax_up_time.plot(t_up, x_up, "-", color="tab:green", label="Upsampled")
+        ax_up_time.plot(t_up, x_up, "o-", color="tab:red", label="Upsampled")
         ax_up_time.set_xlabel("Zeit (s)")
         ax_up_time.set_ylabel("Amplitude")
         ax_up_time.set_title("Signal nach Upsampling")
