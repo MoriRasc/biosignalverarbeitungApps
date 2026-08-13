@@ -36,35 +36,35 @@ from scipy.io import wavfile
 # --------------------------------------------------------------------------
 # Page setup
 # --------------------------------------------------------------------------
-st.set_page_config(page_title="Fourier Series Explorer", layout="wide")
-st.title("Fourier Series Explorer")
+st.set_page_config(page_title="Fourier-Reihen-Explorer", layout="wide")
+st.title("Fourier-Reihen-Explorer")
 st.caption(
-    "See how any periodic signal is built from a sum of simple sine and "
-    "cosine waves — adjust the number of frequencies and watch the "
-    "approximation converge."
+    "Erfahre, wie jedes periodische Signal als Summe einfacher Sinus- und "
+    "Kosinuswellen aufgebaut ist — passe die Anzahl der Frequenzen an und "
+    "beobachte, wie die Approximation konvergiert."
 )
 
-WAVE_OPTIONS = ["Square wave", "Sawtooth wave", "Triangle wave", "Audio"]
+WAVE_OPTIONS = ["Rechteckswelle", "Sägezahnschwingung", "Dreieckswelle", "Audio"]
 
 DEFAULT_WAV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_audio.wav")
 
 # --------------------------------------------------------------------------
 # Sidebar controls
 # --------------------------------------------------------------------------
-st.sidebar.header("Controls")
-wave_type = st.sidebar.selectbox("Waveform", WAVE_OPTIONS)
+st.sidebar.header("Steuerung")
+wave_type = st.sidebar.selectbox("Wellenform", WAVE_OPTIONS)
 
 is_audio_mode = wave_type == "Audio"
 
 if not is_audio_mode:
-    n_terms = st.sidebar.slider("Number of harmonics (N)", 1, 100, 5)
-    show_components = st.sidebar.checkbox("Show individual harmonic components", False)
-    max_spectrum_n = st.sidebar.slider("Harmonics shown in spectrum plot", 10, 100, 30)
+    n_terms = st.sidebar.slider("Anzahl der Harmonischen (N)", 1, 100, 5)
+    show_components = st.sidebar.checkbox("Einzelne Harmonische anzeigen", False)
+    max_spectrum_n = st.sidebar.slider("Im Spektrum angezeigte Harmonische", 10, 100, 30)
 else:
     uploaded_file = st.sidebar.file_uploader(
-        "Replace the predefined audio (optional WAV upload)", type=["wav"]
+        "Vordefiniertes Audio ersetzen (optional WAV-Upload)", type=["wav"]
     )
-    TARGET_SR = 44100  # standard audio sampling rate
+    TARGET_SR = 44100  # Standard-Audiosamplingrate
 
 # --------------------------------------------------------------------------
 # Fourier series math for the classic waveforms
@@ -146,9 +146,9 @@ if not is_audio_mode:
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.subheader("Time domain: approximation vs. true waveform")
+        st.subheader("Zeitbereich: Approximation vs. reale Wellenform")
         fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(x, true_y, color="black", linewidth=2, label="True waveform")
+        ax.plot(x, true_y, color="black", linewidth=2, label="Reale Wellenform")
         ax.plot(x, approx, color="crimson", linewidth=2, label=f"Approximation (N={n_terms})")
         if show_components:
             for n, comp in enumerate(components, start=1):
@@ -157,36 +157,36 @@ if not is_audio_mode:
         ax.axhline(0, color="gray", linewidth=0.5, linestyle="--")
         ax.set_xlabel("x")
         ax.set_ylabel("Amplitude")
-        ax.set_title(f"{wave_type}: Gibbs phenomenon as N grows")
+        ax.set_title(f"{wave_type}: Gibbs-Phänomen mit wachsendem N")
         ax.legend(loc="upper right", fontsize=8, ncol=2)
         ax.grid(True, alpha=0.3)
         st.pyplot(fig)
         plt.close(fig)
 
     with col2:
-        st.subheader("The math")
+        st.subheader("Die Mathematik")
         st.latex(GENERAL_FORMULA[wave_type])
-        st.markdown(f"**Current partial sum (N = {n_terms}):**")
+        st.markdown(f"**Aktuelle Teilsumme (N = {n_terms}):**")
         st.latex(partial_sum_latex(a, b, n_terms))
         rms_error = np.sqrt(np.mean((true_y - approx) ** 2))
-        st.metric("RMS error vs. true wave", f"{rms_error:.4f}")
+        st.metric("RMS-Fehler zur echten Welle", f"{rms_error:.4f}")
     st.caption(
-    "Tip: drag the slider slowly and watch the Gibbs 'ringing' near sharp "
-    "edges shrink in width but never fully disappear, even at large N."
+    "Tipp: Bewege den Schieberegler langsam und beobachte, wie das Gibbs-'Ringing' "
+    "nahe scharfer Kanten schmaler wird, aber selbst bei großen N nie ganz verschwindet."
 )
-    st.subheader("Frequency spectrum")
+    st.subheader("Frequenzspektrum")
     st.caption(
-        "Each bar is one harmonic's amplitude. Harmonics up to N (red) are "
-        "included in the approximation above; the rest (gray) are not yet added."
+        "Jeder Balken steht für die Amplitude einer Harmonischen. Harmonische bis N (rot) "
+        "sind in der Approximation oben enthalten; die restlichen (grau) sind noch nicht hinzugefügt."
     )
     amps = np.sqrt(a**2 + b**2)
     ns = np.arange(1, max_spectrum_n + 1)
     colors = ["crimson" if n <= n_terms else "lightgray" for n in ns]
     fig2, ax2 = plt.subplots(figsize=(10, 3))
     ax2.bar(ns, amps[1 : max_spectrum_n + 1], color=colors, width=0.6)
-    ax2.set_xlabel("Harmonic number n (frequency = n × fundamental)")
+    ax2.set_xlabel("Harmonische n (Frequenz = n × Grundfrequenz)")
     ax2.set_ylabel("Amplitude")
-    ax2.set_title("Amplitude spectrum")
+    ax2.set_title("Amplitudenspektrum")
     ax2.grid(True, alpha=0.3, axis="y")
     st.pyplot(fig2)
     plt.close(fig2)
@@ -195,13 +195,13 @@ if not is_audio_mode:
 # MODE 2: audio decomposition and reconstruction
 # --------------------------------------------------------------------------
 else:
-    st.subheader("Decomposing audio into frequencies")
+    st.subheader("Audio in Frequenzen zerlegen")
     st.caption(
-        "A predefined audio clip is loaded by default — upload your own WAV "
-        "in the sidebar to use a different sound instead. The signal is "
-        "FFT-decomposed into frequency components; the slider controls how "
-        "many of the *lowest* frequencies are kept when reconstructing, so "
-        "higher frequencies join in as you increase it."
+        "Standardmäßig wird ein vordefiniertes Audioclip geladen — lade in der Seitenleiste "
+        "dein eigenes WAV hoch, um einen anderen Klang zu verwenden. Das Signal wird "
+        "per FFT in Frequenzkomponenten zerlegt; der Schieberegler bestimmt, wie viele "
+        "der *niedrigsten* Frequenzen bei der Rekonstruktion erhalten bleiben, sodass "
+        "höhere Frequenzen mit steigendem Wert hinzugefügt werden."
     )
 
     @st.cache_data(show_spinner=False)
@@ -235,7 +235,7 @@ else:
         source, source_label = DEFAULT_WAV_PATH, "predefined demo clip"
 
     sample_rate, signal = load_wav(source, TARGET_SR)
-    st.caption(f"Using **{source_label}** — {len(signal)/sample_rate:.2f}s at {sample_rate} Hz")
+    st.caption(f"Verwendet **{source_label}** — {len(signal)/sample_rate:.2f}s bei {sample_rate} Hz")
 
     # --- FFT decomposition ---
     spectrum, freqs, magnitudes = compute_spectrum(signal, sample_rate)
@@ -249,16 +249,16 @@ else:
         st.session_state.high_freq = min(1000.0, float(freqs[-1]))
 
     # --- interactive spectrum plot: drag across it to set the low/high range ---
-    st.subheader("Select a frequency range with two cursors")
+    st.subheader("Frequenzbereich mit zwei Cursorn auswählen")
     st.caption(
-        "Use the slider below to zoom the x-axis range, then drag horizontally "
-        "on the plot to select the frequency range to keep. Plotly zoom and pan "
-        "are disabled so the selection remains easy to adjust."
+        "Nutze den Schieberegler unten, um den x-Achsenbereich zu vergrößern, und ziehe "
+        "danach horizontal im Diagramm, um den zu behaltenden Frequenzbereich auszuwählen. "
+        "Plotly-Zoom und -Pan sind deaktiviert, damit die Auswahl leicht angepasst werden kann."
     )
 
     max_display_freq = min(20000.0, sample_rate / 2)
     zoom_min, zoom_max = st.slider(
-        "Plot zoom range (Hz)",
+        "Zoombereich des Diagramms (Hz)",
         0.0,
         float(max_display_freq),
         value=(0.0, float(max_display_freq)),
@@ -322,11 +322,11 @@ else:
     kept_bins = np.where(kept_mask)[0]
     n_components = kept_bins.size
     if n_components == 0:
-        st.warning("No frequency bins are currently selected; drag a wider range to keep audible components.")
+        st.warning("Derzeit sind keine Frequenzbereiche ausgewählt; ziehe einen größeren Bereich, damit hörbare Komponenten erhalten bleiben.")
     else:
         st.caption(
-            f"Keeping {n_components} of {total_bins} frequency components "
-            f"between {low_cutoff:.0f} Hz and {high_cutoff:.0f} Hz."
+            f"Es werden {n_components} von {total_bins} Frequenzkomponenten "
+            f"zwischen {low_cutoff:.0f} Hz und {high_cutoff:.0f} Hz beibehalten."
         )
 
     filtered_spectrum = np.zeros_like(spectrum)
@@ -348,18 +348,18 @@ else:
     else:
         top_freq = 0.0
     st.markdown(
-        f"**Reconstructed audio — {n_components} of {total_bins} frequency "
-        f"components, from {low_cutoff:.0f} Hz to {top_freq:.0f} Hz**"
+        f"**Rekonstruiertes Audio — {n_components} von {total_bins} Frequenzkomponenten, "
+        f"von {low_cutoff:.0f} Hz bis {top_freq:.0f} Hz**"
     )
     st.audio(to_wav_bytes(reconstructed, sample_rate), format="audio/wav")
 
-    st.subheader("Time domain (zoomed in)")
-    zoom_samples = min(int(sample_rate), signal.size)  # first 20 ms
+    st.subheader("Zeitbereich (vergrößert)")
+    zoom_samples = min(int(sample_rate), signal.size)  # erste 20 ms
     t_axis = np.arange(zoom_samples) / sample_rate
     fig3, ax3 = plt.subplots(figsize=(10, 3.5))
     ax3.plot(t_axis, signal[:zoom_samples], color="black", linewidth=1.5, label="Original")
-    ax3.plot(t_axis, reconstructed[:zoom_samples], color="crimson", linewidth=1.5, label="Reconstructed")
-    ax3.set_xlabel("Time (s)")
+    ax3.plot(t_axis, reconstructed[:zoom_samples], color="crimson", linewidth=1.5, label="Rekonstruiert")
+    ax3.set_xlabel("Zeit (s)")
     ax3.set_ylabel("Amplitude")
     ax3.legend()
     ax3.grid(True, alpha=0.3)

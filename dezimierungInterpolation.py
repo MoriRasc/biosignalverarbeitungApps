@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from scipy.signal import butter, lfilter
 
-st.set_page_config(page_title="DFT/FFT und Resampling", layout="wide")
+st.set_page_config(page_title="Dezimierung und Interpolation", layout="wide")
 st.title("DFT, FFT und Resampling")
 
 st.markdown("""
-Diese App basiert auf dem Notebook zur DFT/FFT und zeigt, wie sich Downsampling und Upsampling
+Diese App zeigt wie sich Dezimierung oder Downsampling und Interpolation oder Upsampling
 auf das Signal und sein Spektrum auswirken.
 """)
 
@@ -85,7 +85,7 @@ amplitudes = [amplitude_1, amplitude_2, amplitude_3]
 
 operation = st.sidebar.selectbox(
     "Operation",
-    ["Downsampling", "Upsampling (Interpolation)"],
+    ["Downsampling (Dezimierung)", "Upsampling (Interpolation)"],
 )
 factor = st.sidebar.slider("Faktor", 2, 15, 5, 1)
 
@@ -128,7 +128,7 @@ with left_top_spec:
     ax_spec.stem(freqs_fft, mags_fft, linefmt='-', markerfmt=' ', basefmt='-')
     ax_spec.set_xlabel("Frequenz (Hz)")
     ax_spec.set_ylabel("Amplitude")
-    ax_spec.set_title("DFT/FFT des Signals")
+    ax_spec.set_title("DFT des Signals")
     ax_spec.set_xlim(0, fs / 2 + 5)
     ax_spec.grid(True)
     fig_spec.tight_layout()
@@ -141,13 +141,13 @@ with right_top_spec:
 
     
 
-if operation == "Downsampling":
+if operation == "Downsampling (Dezimierung)":
     new_fs = fs / factor
     t_down = t[::factor]
     x_down = x[::factor]
     freqs_down, mags_down = spectrum(x_down, new_fs)
 
-    st.subheader("3. Downsampling")
+    st.subheader("3. Downsampling (Dezimierung)")
     top_left, top_right = st.columns(2)
     with top_left:
         fig_down_time, ax_down_time = plt.subplots(figsize=(6, 2.8))
