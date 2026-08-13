@@ -7,7 +7,7 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import butter, lfilter
 
 st.set_page_config(page_title="Dezimierung und Interpolation", layout="wide")
-st.title("DFT, FFT und Resampling")
+st.title("Dezimierung und Interpolation")
 
 st.markdown("""
 Diese App zeigt wie sich Dezimierung oder Downsampling und Interpolation oder Upsampling
