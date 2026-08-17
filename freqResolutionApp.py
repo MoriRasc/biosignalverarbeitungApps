@@ -91,7 +91,7 @@ with row2_col2:
     fig_fft_padded, ax_fft_padded = plt.subplots(figsize=(5.2, 2.2))
     ax_fft_padded.plot(frequencies, magnitudes, label="Mit Zero-Padding", color="tab:orange")
     ax_fft_padded.set_xlim(190, 270)
-    ax_fft_padded.set_ylim(0, 1/zero_padding_factor)
+    ax_fft_padded.set_ylim(0, 2/zero_padding_factor)
     ax_fft_padded.set_xlabel("Frequenz (Hz)")
     ax_fft_padded.set_ylabel("Amplitude")
     ax_fft_padded.set_title("FFT mit Zero-Padding")
