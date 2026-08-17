@@ -54,6 +54,16 @@ DEFAULT_WAV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dem
 st.sidebar.header("Steuerung")
 wave_type = st.sidebar.selectbox("Wellenform", WAVE_OPTIONS)
 
+# Map displayed (German) options to the internal English keys used
+# by the coefficient/true_wave functions. Keep display labels in German.
+DISPLAY_TO_INTERNAL = {
+    "Rechteckswelle": "Square wave",
+    "Sägezahnschwingung": "Sawtooth wave",
+    "Dreieckswelle": "Triangle wave",
+    "Audio": "Audio",
+}
+internal_wave_type = DISPLAY_TO_INTERNAL.get(wave_type, wave_type)
+
 is_audio_mode = wave_type == "Audio"
 
 if not is_audio_mode:
@@ -139,9 +149,9 @@ def partial_sum_latex(a, b, n_max, max_terms_shown=4):
 # --------------------------------------------------------------------------
 if not is_audio_mode:
     x = np.linspace(-np.pi, np.pi, 2000)
-    a, b = fourier_coeffs(wave_type, max(n_terms, max_spectrum_n))
+    a, b = fourier_coeffs(internal_wave_type, max(n_terms, max_spectrum_n))
     approx, components = reconstruct(x, a, b, n_terms)
-    true_y = true_wave(x, wave_type)
+    true_y = true_wave(x, internal_wave_type)
 
     col1, col2 = st.columns([2, 1])
 
@@ -165,7 +175,7 @@ if not is_audio_mode:
 
     with col2:
         st.subheader("Die Mathematik")
-        st.latex(GENERAL_FORMULA[wave_type])
+        st.latex(GENERAL_FORMULA[internal_wave_type])
         st.markdown(f"**Aktuelle Teilsumme (N = {n_terms}):**")
         st.latex(partial_sum_latex(a, b, n_terms))
         rms_error = np.sqrt(np.mean((true_y - approx) ** 2))
