@@ -166,7 +166,7 @@ if not is_audio_mode:
                     ax.plot(x, comp, linewidth=0.8, alpha=0.5, label=f"n={n}")
         ax.axhline(0, color="gray", linewidth=0.5, linestyle="--")
         ax.set_xlabel("x")
-        ax.set_ylabel("Amplitude")
+        ax.set_ylabel("Amplitude/(V)")
         ax.set_title(f"{wave_type}: Gibbs-Phänomen mit wachsendem N")
         ax.legend(loc="upper right", fontsize=8, ncol=2)
         ax.grid(True, alpha=0.3)
@@ -195,7 +195,7 @@ if not is_audio_mode:
     fig2, ax2 = plt.subplots(figsize=(10, 3))
     ax2.bar(ns, amps[1 : max_spectrum_n + 1], color=colors, width=0.6)
     ax2.set_xlabel("Harmonische n (Frequenz = n × Grundfrequenz)")
-    ax2.set_ylabel("Amplitude")
+    ax2.set_ylabel("Amplitude/(V)")
     ax2.set_title("Amplitudenspektrum")
     ax2.grid(True, alpha=0.3, axis="y")
     st.pyplot(fig2)
@@ -300,7 +300,7 @@ else:
     spec_fig.add_vline(x=low_cutoff, line_dash="dash", line_color="crimson")
     spec_fig.add_vline(x=high_cutoff, line_dash="dash", line_color="crimson")
     spec_fig.update_layout(
-        xaxis_title="Frequency (Hz)", yaxis_title="Magnitude",
+        xaxis_title="Frequency/(Hz)", yaxis_title="Magnitude/(V)",
         height=350, margin=dict(l=40, r=20, t=20, b=40),
         dragmode="select",
         xaxis=dict(range=[zoom_min, zoom_max], fixedrange=True),
@@ -369,8 +369,8 @@ else:
     fig3, ax3 = plt.subplots(figsize=(10, 3.5))
     ax3.plot(t_axis, signal[:zoom_samples], color="black", linewidth=1.5, label="Original")
     ax3.plot(t_axis, reconstructed[:zoom_samples], color="crimson", linewidth=1.5, label="Rekonstruiert")
-    ax3.set_xlabel("Zeit (s)")
-    ax3.set_ylabel("Amplitude")
+    ax3.set_xlabel("Zeit/(s)")
+    ax3.set_ylabel("Amplitude/(V)")
     ax3.legend()
     ax3.grid(True, alpha=0.3)
     st.pyplot(fig3)
