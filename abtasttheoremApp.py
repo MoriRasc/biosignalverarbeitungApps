@@ -18,6 +18,8 @@ fs: Abtastfrequenz,
 
 fmax: Maximale Frequenz in einem Signal 
 
+Die Nyquist-Frequenz ist fN = fs/2.
+
 Ein 2-Hz-Sinus-Signal ist gegeben.''')
 
 # --- Feste Signalparameter ---
@@ -44,6 +46,8 @@ fs = st.slider("Abtastfrequenz fs (Hz)", 2.0, 20.0 , 5.0, 0.1)
 Ts = 1 / fs
  
 st.caption(f"Ts = 1/fs = {Ts:.4f} s")
+nyquist_frequency = fs / 2
+st.caption(f"Nyquist-Frequenz fN = fs/2 = {nyquist_frequency:.2f} Hz")
  
 @st.cache_data
 def get_sampled_signal(t_min, t_max, Ts, f1):
@@ -93,9 +97,17 @@ with col3:
     st.pyplot(fig3)
  
 # Hinweis auf das Abtasttheorem
-nyquist = 2 * f1
-if fs < nyquist:
-    st.warning(f"fs = {fs} Hz liegt unter der Nyquist-Rate ({nyquist} Hz) — Aliasing tritt auf!")
+minimum_sampling_frequency = 2 * f1
+if fs <= minimum_sampling_frequency:
+    st.warning(
+        f"fs = {fs} Hz erfüllt die erforderliche Mindest-Abtastfrequenz "
+        f"für die Beispielsignale nicht (fs muss > {minimum_sampling_frequency} Hz sein).  \n"
+        f"Nyquist-Frequenz = fs/2 = {fs/2} Hz — Aliasing tritt auf!"
+    )
 else:
-    st.success(f"fs = {fs} Hz erfüllt das Abtasttheorem (Nyquist-Rate = {nyquist} Hz).")
+    st.success(
+        f"fs = {fs} Hz erfüllt das Abtasttheorem "
+        f"(Nyquist-Frequenz = fs/2 = {fs/2} Hz).  \n"
+        f"Mindest-Abtastfrequenz für die Beispielsignale: > {minimum_sampling_frequency} Hz — Kein Aliasing!"
+    )
  
