@@ -263,10 +263,7 @@ else:
         f"({noise_std_dev:.4f} V). Das analoge Rauschen kann "
         "benachbarte ADC-Codes anregen. Daraus folgt aber nicht "
         "automatisch, dass kleinere Signaländerungen zuverlässig "
-        "erkennbar sind. Unter geeigneten Bedingungen können "
-        "Oversampling und Mittelung die Schätzung kleiner "
-        "Änderungen verbessern; die intrinsische ADC-Schrittweite "
-        "bleibt gleich."
+        "erkennbar sind."
     )
 
 
