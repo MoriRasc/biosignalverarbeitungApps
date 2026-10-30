@@ -29,7 +29,7 @@ noise_std_dev = st.sidebar.slider(
 FS = st.sidebar.slider(
     "Full-Scale-Spitzenwert FS (V)", 0.5, 5.0, 2.0, 0.1
 )
-num_bits = st.sidebar.slider("Quantisierungsbits", 2, 8, 4, 1)
+num_bits = st.sidebar.slider("Quantisierungsbits", 2, 5, 4, 1)
 
 fs = 1000
 duration = 1.0
@@ -112,6 +112,8 @@ snr_analog_db = 20 * math.log10(
 
 lsb = calculate_lsb(num_bits, FS)
 min_bits_ideal = min_bit_depth_for_snr(snr_analog_db)
+min_code = -(2 ** (num_bits - 1))
+max_code = (2 ** (num_bits - 1)) - 1
 
 # Detect samples outside the selected input range.
 overload_count = int(
@@ -133,7 +135,137 @@ signal_quant_snr_db = (
 )
 
 
-st.subheader("Schritt 1: Quantisierung und Kennwerte")
+st.subheader("Schritt 1: Quantisierungsstufen und Umrechnung")
+st.write(
+    f"Bei {num_bits} Bit gibt es {2**num_bits} Codes. Für den "
+    f"Eingangsbereich −{FS:.2f} V bis +{FS:.2f} V ist die Schrittweite "
+    f"LSB = 2 · FS / 2ᴺ = {lsb:.4f} V. Die Codes sind vorzeichenbehaftet: "
+    f"{min_code} bis {max_code}; der positive Endwert ist daher "
+    f"+FS − LSB = {FS - lsb:.4f} V."
+)
+
+analog_value = st.number_input(
+    "Analogwert für die Umrechnung (V)",
+    min_value=float(-1.5 * FS),
+    max_value=float(1.5 * FS),
+    value=float(np.clip(amplitude, -1.5 * FS, 1.5 * FS)),
+    step=float(lsb / 4),
+    format="%.4f",
+)
+
+analog_code = int(
+    np.clip(np.rint(analog_value / lsb), min_code, max_code)
+)
+analog_output = analog_code * lsb
+analog_code_bits = format(
+    analog_code & ((2**num_bits) - 1), f"0{num_bits}b"
+)
+analog_code_hex = format(
+    analog_code & ((2**num_bits) - 1), f"0{(num_bits + 3) // 4}X"
+)
+
+st.markdown("**Analog → Digital**")
+st.write(
+    f"{analog_value:.4f} V / {lsb:.4f} V = "
+    f"{analog_value / lsb:.3f} LSB"
+)
+st.write(
+    f"Gerundet und auf den darstellbaren Codebereich begrenzt: "
+    f"Code **{analog_code}** (`{analog_code_bits}`)"
+)
+st.write(
+    f"Digitaler Ausgangswert: Binär `{analog_code_bits}` | "
+    f"Hex `0x{analog_code_hex}`"
+)
+
+codes = np.arange(min_code, max_code + 1)
+decision_edges = np.concatenate(
+    (
+        [-FS],
+        (codes[:-1] + 0.5) * lsb,
+        [FS],
+    )
+)
+quantization_levels = codes * lsb
+
+fig_steps, ax_steps = plt.subplots(figsize=(10, 4.5))
+ax_steps.stairs(
+    quantization_levels,
+    decision_edges,
+    fill=True,
+    alpha=0.2,
+    color="tab:blue",
+    label="Quantisierungsstufen",
+)
+ax_steps.plot(
+    analog_value,
+    analog_output,
+    marker="o",
+    markersize=7,
+    color="tab:orange",
+    label=f"Beispiel: {analog_value:.3f} V → {analog_code_bits}",
+)
+ax_steps.axhline(0, linewidth=0.8, color="gray")
+ax_steps.axvline(0, linewidth=0.8, color="gray")
+ax_steps.set_xlim(-FS, FS)
+ax_steps.set_ylim(-FS - lsb, FS + lsb)
+ax_steps.set_yticks(quantization_levels)
+ax_steps.set_yticklabels(
+    [
+        format(int(code) & ((2**num_bits) - 1), f"0{num_bits}b")
+        for code in codes
+    ]
+)
+ax_steps.set_xlabel("Analoger Eingangswert (V)")
+ax_steps.set_ylabel("Digitaler Ausgangscode (Binär, Zweierkomplement)")
+ax_steps.set_title(
+    f"{num_bits}-Bit-Quantisierer: Eingang → Ausgang"
+)
+ax_steps.grid(True, alpha=0.4)
+ax_steps.legend()
+fig_steps.tight_layout()
+st.pyplot(fig_steps)
+plt.close(fig_steps)
+
+with st.expander("Code-Tabelle mit Eingangs-Schwellen und Ausgangswerten"):
+    code_table = [
+        {
+            "Binärcode": format(
+                int(code) & ((2**num_bits) - 1), f"0{num_bits}b"
+            ),
+            "Vorzeichenbehafteter Code": int(code),
+            "Untere Schwelle (V)": float(lower),
+            "Obere Schwelle (V)": float(upper),
+            "Ausgangswert (V)": float(code * lsb),
+        }
+        for code, lower, upper in zip(
+            codes, decision_edges[:-1], decision_edges[1:]
+        )
+    ]
+    st.dataframe(code_table, hide_index=True, width="stretch")
+    st.caption(
+        "Die Schwellen liegen jeweils zwischen zwei Stufen. An exakt "
+        "halben LSB-Werten entscheidet die verwendete Rundung "
+        "(np.rint: Rundung zur geraden Zahl). Werte außerhalb von ±FS "
+        "werden auf den jeweiligen Endcode begrenzt."
+    )
+
+st.markdown("**Digital → Analog**")
+digital_code = st.slider(
+    "Digitaler Code (vorzeichenbehaftet)",
+    min_value=min_code,
+    max_value=max_code,
+    value=0,
+)
+digital_code_bits = format(
+    digital_code & ((2**num_bits) - 1), f"0{num_bits}b"
+)
+digital_output = digital_code * lsb
+st.write(
+    f"Code **{digital_code}** (`{digital_code_bits}`) × "
+    f"LSB {lsb:.4f} V = **{digital_output:.4f} V**"
+)
+st.subheader("Schritt 2: Quantisierung und Kennwerte")
 
 col1, col2, col3 = st.columns(3)
 
@@ -176,7 +308,7 @@ st.caption(
 )
 
 
-st.subheader("Schritt 2: Originalsignal und quantisiertes Signal")
+st.subheader("Schritt 3: Originalsignal und quantisiertes Signal")
 
 fig, axes = plt.subplots(
     2, 1, figsize=(10, 6), sharex=True
@@ -230,7 +362,7 @@ st.pyplot(fig)
 plt.close(fig)
 
 
-st.subheader("Schritt 3: Interpretation")
+st.subheader("Schritt 4: Interpretation")
 
 if overload_count:
     st.warning(
@@ -263,7 +395,10 @@ else:
         f"({noise_std_dev:.4f} V). Das analoge Rauschen kann "
         "benachbarte ADC-Codes anregen. Daraus folgt aber nicht "
         "automatisch, dass kleinere Signaländerungen zuverlässig "
-        "erkennbar sind."
+        "erkennbar sind. Unter geeigneten Bedingungen können "
+        "Oversampling und Mittelung die Schätzung kleiner "
+        "Änderungen verbessern; die intrinsische ADC-Schrittweite "
+        "bleibt gleich."
     )
 
 
@@ -286,7 +421,7 @@ st.write(
 )
 
 
-st.subheader("Schritt 4: Vollskalen-Effekt")
+st.subheader("Schritt 5: Vollskalen-Effekt")
 
 st.write(
     "Bei gleicher Bitzahl führt ein größerer Full-Scale-"
